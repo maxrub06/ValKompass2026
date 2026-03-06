@@ -234,7 +234,24 @@
                     "Medborgerlig Samling": 2,
                     "Alternativ för Sverige": 2
                 }
-            }
+            },
+            {
+                id: 11,
+                question: "Sverige bör förbli en konstitutionell monarki",
+                category: "Statsskick",
+                responses: {
+                    "Moderaterna": 3,
+                    "Sverigedemokraterna": 2,
+                    "Socialdemokraterna": 4,
+                    "Vänsterpartiet": 5,
+                    "Miljöpartiet": 5,
+                    "Centerpartiet": 4,
+                    "Liberalerna": 3,
+                    "Kristdemokraterna": 3,
+                    "Medborgerlig Samling": 2,
+                    "Alternativ för Sverige": 1
+                }
+            },
         ];
 
         // Initialize quiz
@@ -335,7 +352,22 @@
                 Object.keys(item.responses).forEach(party => {
                     const partyAnswer = item.responses[party];
                     const difference = Math.abs(userAnswer - partyAnswer);
-                    partyScores[party] += (5 - difference);
+                    
+                    // Points based on difference
+                    let points = 0;
+                    if (difference === 0) {
+                        points = 1; // Helt enig
+                    } else if (difference === 1) {
+                        points = 1; // Delvis enig
+                    } else if (difference === 2) {
+                        points = 0; // Neutral
+                    } else if (difference === 3) {
+                        points = -1; // Delvis oenig
+                    } else if (difference === 4) {
+                        points = -2; // Helt oenig
+                    }
+                    
+                    partyScores[party] += points;
                 });
             });
 
