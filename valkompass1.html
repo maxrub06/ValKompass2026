@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Valkompass 2026 - Quiz</title>
+    <link rel="icon" href="valkompasslogga.svg" type="image/svg+xml">
+    <link rel="shortcut icon" href="valkompasslogga.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="valkompasslogga.svg">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-md sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <img src="valkompasslogga.svg" alt="Valkompass Logo" class="w-8 h-8">
+                <span class="font-bold text-xl text-blue-600">Valkompass 2026</span>
+            </div>
+            <a href="index.html" class="text-gray-600 hover:text-blue-600 font-medium">Hem</a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="max-w-4xl mx-auto px-4 py-12">
+        <div class="bg-white rounded-lg shadow-lg p-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Valkompass Quiz</h1>
+            <p class="text-gray-600 mb-8">Svara på frågorna nedan för att se vilka partier som stämmer bäst överens med dina åsikter.</p>
+
+            <form id="compassForm">
+                <!-- Questions Container -->
+                <div id="questionsContainer"></div>
+
+                <!-- Submit Button -->
+                <div class="mt-8 flex gap-4">
+                    <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-colors">
+                        Se Resultat
+                    </button>
+                    <button type="reset" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-3 px-6 rounded-lg transition-colors">
+                        Återställ
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="mt-8 bg-white rounded-lg shadow p-4">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-sm font-medium text-gray-700">Besvarade frågor</span>
+                <span class="text-sm font-medium text-gray-700"><span id="answeredCount">0</span> / <span id="totalCount">0</span></span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2">
+                <div id="progressBar" class="bg-blue-600 h-2 rounded-full transition-all" style="width: 0%"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white mt-12 py-6">
+        <div class="max-w-6xl mx-auto px-4 text-center">
+            <p class="text-gray-400">Valkompass 2026 - Jämför dina politiska åsikter</p>
+        </div>
+    </footer>
+
+    <script>
+        // Quiz Data - Template for editing
+        const quizData = [
+            {
+                id: 1,
+                question: "Sverige bör öka invandringen",
+                category: "Invandring",
+                responses: {
+                    "Moderaterna": 3,
+                    "Sverigedemokraterna": 1,
+                    "Socialdemokraterna": 4,
+                    "Vänsterpartiet": 5,
+                    "Miljöpartiet": 4,
+                    "Centerpartiet": 3,
+                    "Liberalerna": 3,
+                    "Kristdemokraterna": 2,
+                    "Medborgerlig Samling": 2,
+                    "Alternativ för Sverige": 1
+                }
+            },
+            {
+                id: 2,
+                question: "Klimatkrisen är Sveriges största utmaning",
+                category: "Miljö",
+                responses: {
+                    "Moderaterna": 3,
+                    "Sverigedemokraterna": 2,
+                    "Socialdemokraterna": 4,
+                    "Vänsterpartiet": 5,
+                    "Miljöpartiet": 5,
+                    "Centerpartiet": 4,
+                    "Liberalerna": 3,
+                    "Kristdemokraterna": 3,
+                    "Medborgerlig Samling": 2,
+                    "Alternativ för Sverige": 1
+                }
+            },
+            {
+                id: 3,
+                question: "Skatterna bör sänkas för att stimulera ekonomin",
+                category: "Ekonomi",
+                responses: {
+                    "Moderaterna": 5,
+                    "Sverigedemokraterna": 4,
+                    "Socialdemokraterna": 2,
+                    "Vänsterpartiet": 1,
+                    "Miljöpartiet": 2,
+                    "Centerpartiet": 4,
+                    "Liberalerna": 5,
+                    "Kristdemokraterna": 3,
+                    "Medborgerlig Samling": 5,
+                    "Alternativ för Sverige": 3
+                }
+            },
+            {
+                id: 4,
+                question: "EU är viktigt för Sveriges framtid",
+                category: "EU",
+                responses: {
+                    "Moderaterna": 4,
+                    "Sverigedemokraterna": 2,
+                    "Socialdemokraterna": 3,
+                    "Vänsterpartiet": 2,
+                    "Miljöpartiet": 4,
+                    "Centerpartiet": 4,
+                    "Liberalerna": 5,
+                    "Kristdemokraterna": 3,
+                    "Medborgerlig Samling": 4,
+                    "Alternativ för Sverige": 1
+                }
+            },
+            {
+                id: 5,
+                question: "Välfärdssystemen behöver stärkas och utökas",
+                category: "Välfärd",
+                responses: {
+                    "Moderaterna": 2,
+                    "Sverigedemokraterna": 3,
+                    "Socialdemokraterna": 5,
+                    "Vänsterpartiet": 5,
+                    "Miljöpartiet": 4,
+                    "Centerpartiet": 3,
+                    "Liberalerna": 2,
+                    "Kristdemokraterna": 3,
+                    "Medborgerlig Samling": 2,
+                    "Alternativ för Sverige": 2
+                }
+            },
+            {
+                id: 6,
+                question: "Könsidentitet bör respekteras enligt lag",
+                category: "Jämlikhet",
+                responses: {
+                    "Moderaterna": 3,
+                    "Sverigedemokraterna": 1,
+                    "Socialdemokraterna": 5,
+                    "Vänsterpartiet": 5,
+                    "Miljöpartiet": 5,
+                    "Centerpartiet": 4,
+                    "Liberalerna": 4,
+                    "Kristdemokraterna": 2,
+                    "Medborgerlig Samling": 2,
+                    "Alternativ för Sverige": 1
+                }
+            },
+            {
+                id: 7,
+                question: "Lag och ordning måste prioriteras högt",
+                category: "Säkerhet",
+                responses: {
+                    "Moderaterna": 5,
+                    "Sverigedemokraterna": 5,
+                    "Socialdemokraterna": 3,
+                    "Vänsterpartiet": 2,
+                    "Miljöpartiet": 3,
+                    "Centerpartiet": 4,
+                    "Liberalerna": 3,
+                    "Kristdemokraterna": 4,
+                    "Medborgerlig Samling": 5,
+                    "Alternativ för Sverige": 4
+                }
+            },
+            {
+                id: 8,
+                question: "Privatisering av välfärdstjänster är bra",
+                category: "Ekonomi",
+                responses: {
+                    "Moderaterna": 5,
+                    "Sverigedemokraterna": 2,
+                    "Socialdemokraterna": 1,
+                    "Vänsterpartiet": 1,
+                    "Miljöpartiet": 2,
+                    "Centerpartiet": 3,
+                    "Liberalerna": 4,
+                    "Kristdemokraterna": 2,
+                    "Medborgerlig Samling": 5,
+                    "Alternativ för Sverige": 3
+                }
+            },
+            {
+                id: 9,
+                question: "Arbetsrätten för anställda bör stärkas",
+                category: "Arbetarrätt",
+                responses: {
+                    "Moderaterna": 2,
+                    "Sverigedemokraterna": 2,
+                    "Socialdemokraterna": 5,
+                    "Vänsterpartiet": 5,
+                    "Miljöpartiet": 4,
+                    "Centerpartiet": 3,
+                    "Liberalerna": 2,
+                    "Kristdemokraterna": 2,
+                    "Medborgerlig Samling": 1,
+                    "Alternativ för Sverige": 2
+                }
+            },
+            {
+                id: 10,
+                question: "Kristen värdegrund bör vara central i samhället",
+                category: "Värderingar",
+                responses: {
+                    "Moderaterna": 2,
+                    "Sverigedemokraterna": 3,
+                    "Socialdemokraterna": 1,
+                    "Vänsterpartiet": 1,
+                    "Miljöpartiet": 1,
+                    "Centerpartiet": 2,
+                    "Liberalerna": 2,
+                    "Kristdemokraterna": 5,
+                    "Medborgerlig Samling": 2,
+                    "Alternativ för Sverige": 2
+                }
+            }
+        ];
+
+        // Initialize quiz
+        function initializeQuiz() {
+            const container = document.getElementById('questionsContainer');
+            const form = document.getElementById('compassForm');
+
+            quizData.forEach((item, index) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'mb-8 pb-8 border-b border-gray-200 last:border-b-0';
+                questionDiv.innerHTML = `
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                        <span class="text-blue-600 font-bold">${index + 1}.</span> ${item.question}
+                    </h3>
+                    <p class="text-sm text-gray-500 mb-4">Kategori: ${item.category}</p>
+                    <div class="flex flex-wrap gap-3">
+                        <label class="flex items-center cursor-pointer group">
+                            <input type="radio" name="q${item.id}" value="1" class="w-4 h-4 text-red-600">
+                            <span class="ml-2 text-gray-700 group-hover:text-red-600">Helt oenig</span>
+                        </label>
+                        <label class="flex items-center cursor-pointer group">
+                            <input type="radio" name="q${item.id}" value="2" class="w-4 h-4 text-orange-500">
+                            <span class="ml-2 text-gray-700 group-hover:text-orange-500">Delvis oenig</span>
+                        </label>
+                        <label class="flex items-center cursor-pointer group">
+                            <input type="radio" name="q${item.id}" value="3" class="w-4 h-4 text-gray-400">
+                            <span class="ml-2 text-gray-700 group-hover:text-gray-600">Neutral</span>
+                        </label>
+                        <label class="flex items-center cursor-pointer group">
+                            <input type="radio" name="q${item.id}" value="4" class="w-4 h-4 text-lime-500">
+                            <span class="ml-2 text-gray-700 group-hover:text-lime-500">Delvis enig</span>
+                        </label>
+                        <label class="flex items-center cursor-pointer group">
+                            <input type="radio" name="q${item.id}" value="5" class="w-4 h-4 text-green-600">
+                            <span class="ml-2 text-gray-700 group-hover:text-green-600">Helt enig</span>
+                        </label>
+                    </div>
+                `;
+                container.appendChild(questionDiv);
+            });
+
+            document.getElementById('totalCount').textContent = quizData.length;
+
+            // Add event listeners for progress tracking
+            form.addEventListener('change', updateProgress);
+            form.addEventListener('reset', () => {
+                setTimeout(updateProgress, 0);
+            });
+            form.addEventListener('submit', handleSubmit);
+        }
+
+        function updateProgress() {
+            const form = document.getElementById('compassForm');
+            const answeredCount = document.querySelectorAll('#compassForm input[type="radio"]:checked').length;
+            const total = quizData.length;
+
+            document.getElementById('answeredCount').textContent = answeredCount;
+            const percentage = (answeredCount / total) * 100;
+            document.getElementById('progressBar').style.width = percentage + '%';
+        }
+
+        function handleSubmit(e) {
+            e.preventDefault();
+
+            const form = document.getElementById('compassForm');
+            const answers = {};
+            
+            // Collect answers
+            quizData.forEach(item => {
+                const selectedValue = document.querySelector(`input[name="q${item.id}"]:checked`);
+                if (selectedValue) {
+                    answers[`q${item.id}`] = parseInt(selectedValue.value);
+                }
+            });
+
+            // Check if all questions are answered
+            if (Object.keys(answers).length < quizData.length) {
+                alert('Vänligen besvara alla frågor innan du skickar in dina svar.');
+                return;
+            }
+
+            // Calculate party scores
+            const partyScores = {
+                "Moderaterna": 0,
+                "Sverigedemokraterna": 0,
+                "Socialdemokraterna": 0,
+                "Vänsterpartiet": 0,
+                "Miljöpartiet": 0,
+                "Centerpartiet": 0,
+                "Liberalerna": 0,
+                "Kristdemokraterna": 0,
+                "Medborgerlig Samling": 0,
+                "Alternativ för Sverige": 0
+            };
+
+            quizData.forEach(item => {
+                const userAnswer = answers[`q${item.id}`];
+                Object.keys(item.responses).forEach(party => {
+                    const partyAnswer = item.responses[party];
+                    const difference = Math.abs(userAnswer - partyAnswer);
+                    partyScores[party] += (5 - difference);
+                });
+            });
+
+            // Store results and redirect
+            localStorage.setItem('compassResults', JSON.stringify(partyScores));
+            window.location.href = 'valkompass-results.html';
+        }
+
+        // Initialize on page load
+        window.addEventListener('DOMContentLoaded', initializeQuiz);
+    </script>
+</body>
+</html>
